@@ -99,6 +99,32 @@ function drawEllipse(context, entity) {
     }
 }
 
+var currentR = 255;
+var currentG = 0;
+var currentB = 0;
+function nextRainbowColour() {
+    if (currentR === 255 && currentG < 255 && currentB === 0) {
+        currentG++;
+    } else if (currentR > 0 && currentG === 255 && currentB === 0) {
+        currentR--;
+    } else if (currentR === 0 && currentG === 255 && currentB < 255) {
+        currentB++;
+    } else if (currentR === 0 && currentG > 0 && currentB === 255) {
+        currentG--;
+    } else if (currentR < 255 && currentG === 0 && currentB === 255) {
+        currentR++;
+    } else if (currentR === 255 && currentG === 0 && currentB > 0) {
+        currentB--;
+    } else {
+        // This shouldn't happen. But we can reset just in case.
+        currentR = 255;
+        currentG = 0;
+        currentB = 0;
+    }
+
+    return "rgb(" + currentR + "," + currentG + "," + currentB + ")";
+}
+
 // Given that we don't really have ordered information
 // I'm probably going to give up on this bit
 function drawLine(content, startEntity, endEntity) {
@@ -317,7 +343,8 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
             "x":x,
             "y":y,
             "radius":13,
-            "colour":randomColours[Math.floor(Math.random() * randomColours.length)],
+            //"colour":randomColours[Math.floor(Math.random() * randomColours.length)],
+            "colour":nextRainbowColour(),
             "fill":true
         }
     );
