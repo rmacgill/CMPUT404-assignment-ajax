@@ -35,7 +35,7 @@ var H = canvas.height = window.innerHeight-50;
 var randomColours = ["silver", "grey", "white", "maroon", "red", "purple",
                      "fuchsia", "green", "lime", "olive", "yellow", "navy", "blue", "teal"];
 
-function sendJSONXMLHTTPRequest(url, objects, callback) {
+function sendJSONXMLHTTPRequest(url, method, objects, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState==4) {
@@ -54,7 +54,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     
     // Sends a POST request with a JSON body to the given URL with
     // the related headers set to "application/json"
-    xhr.open("POST", url);
+    xhr.open(method, url);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Accept", "application/json");
     xhr.send(JSON.stringify(objects));
@@ -209,7 +209,7 @@ function getPosition(e) {
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame();
-    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, null)
+    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, "PUT", data, null)
 }
 
 // This will allow multiple users to draw without erasing seemingly random bits of each other's work
@@ -315,13 +315,8 @@ mouse = (function() {
     return self;
 })();
 
-// Use this to block server updates while you're drawing to save resources
-// and then resynchronize after
-var blockWorldUpdates = false;
-
 // Add the application specific mouse listeners!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    blockWorldUpdates = true;
     addEntityWithoutName(
         {
             "x":x,
@@ -335,7 +330,6 @@ mouse.mousedowners.push(function(x,y,clicked,e) {
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    blockWorldUpdates = false;
     addEntityWithoutName(
         {
             "x":x,
@@ -366,16 +360,28 @@ function update() {
     drawFrame();
 }
 
+var registered = false;
+
+function listenerRegistered() {
+    registered = true;
+}
+
+function registerListener() {
+    sendJSONXMLHTTPRequest("http://" + host + "/listener/" + randomID, "PUT", "", listenerRegistered)
+}
+
 function serverUpdate() {
-    if (!blockWorldUpdates) {
+    if (registered) {
         // Get the world from the webservice and then trigger an update
-        sendJSONXMLHTTPRequest("http://" + host + "/changes/" + randomID, "", updateWorld)
+        sendJSONXMLHTTPRequest("http://" + host + "/listener/" + randomID, "GET", "", updateWorld)
     }
 }
 
 function updateWorld(data) {
-    if (!data["current"]) {
-        world = data;
+    if (data) {
+        for (var entity in data) {
+            world[entity] = data[entity]
+        }
         drawNextFrame();
     }
 }
@@ -383,8 +389,8 @@ function updateWorld(data) {
 // Draw at 30 frames per second
 setInterval(update, 1000/30.0);
 
-// Only try to syncronize with the server every 300ms
-setInterval(serverUpdate, 300);
+// Only try to syncronize with the server every 100ms
+setInterval(serverUpdate, 100);
 
     </script>
 </body>

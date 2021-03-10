@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 # Copyright 2013 Abram Hindle
+# Modifications copyright 2021 Robert MacGillivray
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,9 +45,11 @@ class World:
 
     def set(self, entity, data):
         self.space[entity] = data
+        self.notify_all(entity, data)
 
     def clear(self):
         self.space = dict()
+        self.listeners = dict()
 
     def get(self, entity):
         return self.space.get(entity,dict())
@@ -54,14 +57,30 @@ class World:
     def world(self):
         return self.space
 
+    # Listener setup adapted from: https://github.com/uofa-cmput404/cmput404-slides/blob/master/examples/ObserverExampleAJAX/server.py
+    # Downside to this setup is that any dropped communications result in a slowly desyncronizing world
+    def notify_all(self, entity, data):
+        for listener in self.listeners:
+            self.listeners[listener][entity] = data
+
+    def add_listener(self, listener_name):
+        self.listeners[listener_name] = dict()
+
+    def get_listener(self, listener_name):
+        # Better than throwing an error if there's a connection hiccup
+        # when the listener was first supposed to be created
+        if (key not in self.listeners):
+            self.add_listener(listener_name)
+
+        return self.listeners[listener_name]
+
+    def clear_listener(self, listener_name):
+        self.listeners[listener_name] = dict()
+
 # you can test your webservice from the commandline
 # curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}' 
 
 myWorld = World()
-
-# not stateless, but relatively effective since it's impossible to tell if a client
-# has just tuned in for the first time and needs an update or is fine with the current representation
-clients = dict()      
 
 # I give this to you, this is how you get the raw body/data portion of a post in flask
 # this should come with flask but whatever, it's not my project.
@@ -102,21 +121,6 @@ def world():
     """
     return jsonify(myWorld.world())
 
-@app.route("/changes/<id>", methods=['POST', 'GET'])
-def changes(id):
-    """
-    Returns a JSON representation of the world if the specified ID
-    doesn't have the latest representation
-    """
-    if (id not in clients):
-        clients[id] = False
-
-    if (clients[id]):
-        return jsonify({"current": True})
-    else:
-        clients[id] = True
-        return jsonify(myWorld.world())
-
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     """
@@ -131,6 +135,24 @@ def clear():
     """
     myWorld.clear()
     return jsonify(myWorld.world())
+
+# Listener setup adapted from: https://github.com/uofa-cmput404/cmput404-slides/blob/master/examples/ObserverExampleAJAX/server.py
+@app.route("/listener/<entity>", methods=['POST', 'PUT'])
+def add_listener(entity):
+    """
+    Registers a listener that will store updates until retrieved
+    """
+    myWorld.add_listener(entity)
+    return jsonify(dict())
+
+@app.route("/listener/<entity>")
+def get_listener(entity):
+    """
+    Retrieves all stored updates for a listener and clears it
+    """
+    data = myWorld.get_listener(entity)
+    myWorld.clear_listener(entity)
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run()
