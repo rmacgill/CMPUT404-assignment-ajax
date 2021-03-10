@@ -107,10 +107,6 @@ def update(entity):
     Updates the specified entity, and then returns the updated
     JSON representation of that world entity (I'd rather not - but it's in the tests)
     """
-    # flags all clients as not having the latest changes
-    global clients 
-    clients = clients.fromkeys(clients, False)
-
     myWorld.set(entity, flask_post_json())
     return jsonify(myWorld.get(entity))
 
