@@ -81,11 +81,10 @@ def hello():
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     """
-    Updates the specified entity, and then returns the updated
-    JSON representation of that world entity
+    Updates the specified entity and returns 200 ok
     """
     myWorld.set(entity, flask_post_json())
-    return jsonify(myWorld.get(entity))
+    return "", 200
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
@@ -104,10 +103,10 @@ def get_entity(entity):
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     """
-    Clears the world, and then returns the cleared representation
+    Clears the world and returns 200 ok
     """
     myWorld.clear()
-    return jsonify(myWorld.world())
+    return "", 200
 
 if __name__ == "__main__":
     app.run()
