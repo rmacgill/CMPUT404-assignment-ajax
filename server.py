@@ -57,7 +57,11 @@ class World:
 # you can test your webservice from the commandline
 # curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}' 
 
-myWorld = World()          
+myWorld = World()
+
+# not stateless, but relatively effective since it's impossible to tell if a client
+# has just tuned in for the first time and needs an update or is fine with the current representation
+clients = dict()      
 
 # I give this to you, this is how you get the raw body/data portion of a post in flask
 # this should come with flask but whatever, it's not my project.
@@ -84,6 +88,7 @@ def update(entity):
     Updates the specified entity, and then returns the updated
     JSON representation of that world entity (I'd rather not - but it's in the tests)
     """
+    clients = clients.fromkeys(clients, False)
     myWorld.set(entity, flask_post_json())
     return jsonify(myWorld.get(entity))
 
@@ -93,6 +98,18 @@ def world():
     Returns a JSON representation of the entire world
     """
     return jsonify(myWorld.world())
+
+@app.route("/changes/<id>", methods=['POST', 'GET'])
+def changes(id):
+    """
+    Returns a JSON representation of the world if the specified ID
+    doesn't have the latest representation
+    """
+    if (clients[id]):
+        return jsonify({"current": True})
+    else:
+        clients[id] = True
+        return jsonify(myWorld.world())
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):

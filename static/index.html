@@ -369,20 +369,22 @@ function update() {
 function serverUpdate() {
     if (!blockWorldUpdates) {
         // Get the world from the webservice and then trigger an update
-        sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
+        sendJSONXMLHTTPRequest("http://" + host + "/changes/" + randomID, "", updateWorld)
     }
 }
 
 function updateWorld(data) {
-    world = data;
-    drawNextFrame();
+    if (!data["current"]) {
+        world = data;
+        drawNextFrame();
+    }
 }
 
 // Draw at 30 frames per second
 setInterval(update, 1000/30.0);
 
-// Synchronize with server at a slower rate of 10 times per second
-setInterval(serverUpdate, 1000/10.0);
+// Synchronize with server at a slower rate of five times per second
+setInterval(serverUpdate, 1000/5.0);
 
     </script>
 </body>
