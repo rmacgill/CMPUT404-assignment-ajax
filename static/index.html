@@ -378,7 +378,7 @@ var forceUpdateLimit = 100;
 var currentBlockedUpdates = 0;
 function serverUpdate() {
     var shouldUpdate = false;
-    if (pendingUpdates > 0) {
+    if (pendingUpdates <= 0) {
         shouldUpdate = true;
     } else {
         currentBlockedUpdates++;
@@ -405,7 +405,7 @@ function updateWorld(data) {
 setInterval(update, 1000/30.0);
 
 // Synchronize with server at a slower rate of 10 times per second
-setInterval(serverUpdate, 1000/10.0)
+setInterval(serverUpdate, 1000/10.0);
 
     </script>
 </body>
