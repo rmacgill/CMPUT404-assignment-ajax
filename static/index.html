@@ -141,7 +141,7 @@ function getPosition(e) {
 function addEntity(entity, data) {
     world[entity] = data;
     //XXX: Send a XHTML Request that updates the entity you just  modified!
-    sendJSONXMLHTTPRequest(`http://${host}/entity/${entity}`, data, drawNextFrame)
+    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, drawNextFrame)
 }
 
 var counter = 0;
@@ -265,7 +265,7 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
-    sendJSONXMLHTTPRequest(`http://${host}/world`, "", updateWorld)
+    sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
     drawFrame();
 }
 
