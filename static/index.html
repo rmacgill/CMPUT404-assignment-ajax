@@ -82,7 +82,7 @@ function drawEllipse(context, entity) {
     with(context) {
         var x = entity["x"];
         var y = entity["y"];
-        var radius = (entity["radius"])?entity["radius"]:33
+        var radius = (entity["radius"])?entity["radius"]:13
         var radiusX = (entity["radiusX"])?entity["radiusX"]:radius
         var radiusY = (entity["radiusY"])?entity["radiusY"]:radius
         fillStyle = entity["colour"];
@@ -90,7 +90,7 @@ function drawEllipse(context, entity) {
         lineWidth = 5;
 
         beginPath();
-        arc(x, y, radiusX, radiusY, 0, 0, 2.0 * Math.PI, false)
+        ellipse(x, y, radiusX, radiusY, 0, 0, 2.0 * Math.PI, false)
         if (entity["fill"]) {
             fill();
         } else {
@@ -290,7 +290,7 @@ mouse.mousedowners.push(function(x,y,clicked,e) {
         {
             "x":x,
             "y":y,
-            "radiusX":50,
+            "radiusX":33,
             "radiusY":100,
             "colour":"orange",
             "fill":false
@@ -303,7 +303,7 @@ mouse.mouseuppers.push(function(x,y,clicked,e) {
         {
             "x":x,
             "y":y,
-            "radiusX":50,
+            "radiusX":33,
             "radiusY":100,
             "colour":"aqua",
             "fill":false
@@ -316,7 +316,7 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
         {
             "x":x,
             "y":y,
-            "radius":33,
+            "radius":13,
             "colour":randomColours[Math.floor(Math.random() * randomColours.length)],
             "fill":true
         }
