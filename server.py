@@ -136,10 +136,11 @@ def clear():
 @app.route("/listener/<entity>", methods=['POST', 'PUT'])
 def add_listener(entity):
     """
-    Registers a listener that will store updates until retrieved
+    Registers a listener that will store updates until retrieved.
+    Returns the current state of the world to get a new user up to date.
     """
     myWorld.add_listener(entity)
-    return jsonify(dict())
+    return jsonify(myWorld.world())
 
 @app.route("/listener/<entity>")
 def get_listener(entity):

@@ -364,25 +364,28 @@ function update() {
 
 var registered = false;
 
-function listenerRegistered() {
+// This 
+function listenerRegistered(worldState) {
     registered = true;
+    world = worldState;
+    drawNextFrame();
 }
 
 function registerListener() {
-    sendJSONXMLHTTPRequest("http://" + host + "/listener/" + randomID, "PUT", "", listenerRegistered)
+    sendJSONXMLHTTPRequest("http://" + host + "/listener/" + randomID, "PUT", "", listenerRegistered);
 }
 
 function serverUpdate() {
     if (registered) {
         // Get the world from the webservice and then trigger an update
-        sendJSONXMLHTTPRequest("http://" + host + "/listener/" + randomID, "GET", "", updateWorld)
+        sendJSONXMLHTTPRequest("http://" + host + "/listener/" + randomID, "GET", "", updateWorld);
     }
 }
 
-function updateWorld(data) {
-    if (data) {
-        for (var entity in data) {
-            world[entity] = data[entity]
+function updateWorld(updates) {
+    if (updates) {
+        for (var entity in updates) {
+            world[entity] = updates[entity];
         }
         drawNextFrame();
     }
