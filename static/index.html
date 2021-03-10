@@ -32,7 +32,7 @@ var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
 
-var randomColours = ["silver", "gray", "white", "maroon", "red", "purple",
+var randomColours = ["silver", "grey", "white", "maroon", "red", "purple",
                      "fuchsia", "green", "lime", "olive", "yellow", "navy", "blue", "teal"];
 
 function sendJSONXMLHTTPRequest(url, objects, callback) {
@@ -86,15 +86,16 @@ function drawEllipse(context, entity) {
         var radius = (entity["radius"])?entity["radius"]:13
         var radiusX = (entity["radiusX"])?entity["radiusX"]:radius
         var radiusY = (entity["radiusY"])?entity["radiusY"]:radius
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        lineWidth = 5;
-
+        
         beginPath();
         ellipse(x, y, radiusX, radiusY, 0, 0, 2.0 * Math.PI, false)
-        if (entity["fill"]) {
+        if (entity["fillColour"]) {
+            fillStyle = entity["fillColour"];
             fill();
-        } else {
+        }
+        if (entity["strokeColour"]) {
+            lineWidth = 5;
+            strokeStyle = entity["strokeColour"];
             stroke();
         }
     }
@@ -315,6 +316,7 @@ mouse = (function() {
 })();
 
 // Use this to block server updates while you're drawing to save resources
+// and then resynchronize after
 var blockWorldUpdates = false;
 
 // Add the application specific mouse listeners!
@@ -326,8 +328,8 @@ mouse.mousedowners.push(function(x,y,clicked,e) {
             "y":y,
             "radiusX":33,
             "radiusY":100,
-            "colour":"orange",
-            "fill":false
+            "strokeColour":"orange",
+            "fillColour":"grey"
         }
     );
 });
@@ -340,8 +342,8 @@ mouse.mouseuppers.push(function(x,y,clicked,e) {
             "y":y,
             "radiusX":33,
             "radiusY":100,
-            "colour":"aqua",
-            "fill":false
+            "strokeColour":"aqua",
+            "fillColour":"grey"
         }
     );
 });
@@ -353,8 +355,7 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
             "y":y,
             "radius":13,
             //"colour":randomColours[Math.floor(Math.random() * randomColours.length)],
-            "colour":nextRainbowColour(),
-            "fill":true
+            "fillColour":nextRainbowColour(),
         }
     );
 });
