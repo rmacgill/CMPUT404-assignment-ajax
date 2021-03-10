@@ -205,22 +205,10 @@ function getPosition(e) {
 	}
 }
 
-// Keep track of when we're waiting for the server to acknowledge our entity modifications
-// if it hasn't done so yet, don't bother requesting latest state from the server
-var pendingUpdates = 0;
-function entityAdded(data) {
-    if (pendingUpdates > 0) {
-        pendingUpdates--;
-    } 
-}
-
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame();
-    
-    // Update the server representation and don't trust it until that's done (whether succeeded or failed)
-    pendingUpdates++;
-    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, entityAdded)
+    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, null)
 }
 
 // This will allow multiple users to draw without erasing seemingly random bits of each other's work
@@ -326,8 +314,12 @@ mouse = (function() {
     return self;
 })();
 
+// Use this to block server updates while you're drawing to save resources
+var blockWorldUpdates = false;
+
 // Add the application specific mouse listeners!
 mouse.mousedowners.push(function(x,y,clicked,e) {
+    blockWorldUpdates = true;
     addEntityWithoutName(
         {
             "x":x,
@@ -341,6 +333,7 @@ mouse.mousedowners.push(function(x,y,clicked,e) {
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
+    blockWorldUpdates = false;
     addEntityWithoutName(
         {
             "x":x,
@@ -372,25 +365,8 @@ function update() {
     drawFrame();
 }
 
-// Will allow us to only receive forced updates while we're not
-// in the middle of drawing (also have protections in case of failure)
-var forceUpdateLimit = 100;
-var currentBlockedUpdates = 0;
 function serverUpdate() {
-    var shouldUpdate = false;
-    if (pendingUpdates <= 0) {
-        shouldUpdate = true;
-    } else {
-        currentBlockedUpdates++;
-        if (currentBlockedUpdates >= forceUpdateLimit) {
-            // Assume server or client missed a response and reset
-            currentBlockedUpdates = 0;
-            pendingUpdates = 0;
-            shouldUpdate = true;
-        }
-    }
-
-    if (shouldUpdate) {
+    if (!blockWorldUpdates) {
         // Get the world from the webservice and then trigger an update
         sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
     }
