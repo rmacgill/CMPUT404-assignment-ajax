@@ -32,6 +32,10 @@ var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
 
+// This will allow multiple users to draw without erasing seemingly random bits of each other's work
+// Also used with the server's listener system
+var randomID = Math.floor(Math.random() * 131313) + 1;
+
 var randomColours = ["silver", "grey", "white", "maroon", "red", "purple",
                      "fuchsia", "green", "lime", "olive", "yellow", "navy", "blue", "teal"];
 
@@ -212,8 +216,6 @@ function addEntity(entity, data) {
     sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, "PUT", data, null)
 }
 
-// This will allow multiple users to draw without erasing seemingly random bits of each other's work
-var randomID = Math.floor(Math.random() * 100) + 1;
 var counter = 0;
 function addEntityWithoutName(data) {
     //var name = "X"+Math.floor((Math.random()*100)+1);
@@ -385,6 +387,9 @@ function updateWorld(data) {
         drawNextFrame();
     }
 }
+
+// Register ourselves with the server
+registerListener();
 
 // Draw at 30 frames per second
 setInterval(update, 1000/30.0);
