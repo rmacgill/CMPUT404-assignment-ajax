@@ -31,7 +31,8 @@ var host = window.location.host;
 var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
-
+var randomColours = ["silver", "gray", "white", "maroon", "red", "purple",
+                     "fuchsia", "green", "lime", "olive", "yellow", "navy", "blue", "teal"];
 
 function sendJSONXMLHTTPRequest(url, objects, callback) {
     var xhr = new XMLHttpRequest();
@@ -76,14 +77,46 @@ function drawCircle(context,entity) {
     }
 }
 
-function prepEntity(entity) {
-    if (!entity["colour"]) {
-        entity["colour"] = "#FF0000";
+// Draw an ellipse instead so we can do more things
+function drawEllipse(context, entity) {
+    with(context) {
+        var x = entity["x"];
+        var y = entity["y"];
+        var radius = (entity["radius"])?entity["radius"]:33
+        var radiusX = (entity["radiusX"])?entity["radiusX"]:radius
+        var radiusY = (entity["radiusY"])?entity["radiusY"]:radius
+        fillStyle = entity["colour"];
+        strokeStyle = fillStyle;
+        lineWidth = 5;
+        arc(x, y, radiusX, radiusY, 0, 0, 2.0 * Math.PI, false)
+        if (entity["fill"]) {
+            fill();
+        } else {
+            stroke();
+        }
     }
-    if (!entity["radius"]) {
-        entity["radius"] = 50;
+}
+
+// Given that we don't really have ordered information
+// I'm probably going to give up on this bit
+function drawLine(content, startEntity, endEntity) {
+    with(context) {
+        beginPath();
+
+        lineWidth = 10;
+
+        var x1 = startEntity["x"];
+        var y1 = startEntity["y"];
+        var x2 = endEntity["x"];
+        var y2 = endEntity["y"];
+
+        strokeStyle = startEntity["colour"];
+
+        moveTo(x1,y1);
+        lineTo(x2,y2);
+
+        stroke();
     }
-    return entity;
 }
 
 function clearFrame() {
@@ -100,7 +133,7 @@ function renderFrame() {
     clearFrame();
     for (var key in world) {
         var entity = world[key];
-        drawCircle(context,prepEntity(entity));
+        drawEllipse(context, entity);
     }
 }
 
@@ -193,7 +226,6 @@ mouse = (function() {
                 var y = pos[1];
 	        self.clicked = 1;
                 self.callListeners(self.mousedowners,x,y,self.clicked,e);
-                //addEntityWithoutName({'x':x,'y':y,'colour':'red'});
             }
         },
         mouseup: function(e) {
@@ -207,7 +239,6 @@ mouse = (function() {
 	        self.clicked = 0;
                 self.selected = -1;
                 self.callListeners(self.mouseuppers,x,y,self.clicked,e);
-                //addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
             }
         },
         touchstart: function(e) {
@@ -252,18 +283,42 @@ mouse = (function() {
 })();
 
 // Add the application specific mouse listeners!
-//XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName(
+        {
+            "x":x,
+            "y":y,
+            "radiusX":50,
+            "radiusY":100,
+            "colour":"orange",
+            "fill":false
+        }
+    );
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName(
+        {
+            "x":x,
+            "y":y,
+            "radiusX":50,
+            "radiusY":100,
+            "colour":"aqua",
+            "fill":false
+        }
+    );
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
-                          'radius':10});
+    addEntityWithoutName(
+        {
+            "x":x,
+            "y":y,
+            "radius":33,
+            "colour":randomColours[Math.floor(Math.random() * randomColours.length)],
+            "fill":true
+        }
+    );
 });
 
 
