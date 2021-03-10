@@ -110,15 +110,15 @@ function nextRainbowColour() {
     if (currentR === 255 && currentG < 255 && currentB === 0) {
         currentG += progressRate;
     } else if (currentR > 0 && currentG === 255 && currentB === 0) {
-        currentR += progressRate;
+        currentR -= progressRate;
     } else if (currentR === 0 && currentG === 255 && currentB < 255) {
         currentB += progressRate;
     } else if (currentR === 0 && currentG > 0 && currentB === 255) {
-        currentG += progressRate;
+        currentG -= progressRate;
     } else if (currentR < 255 && currentG === 0 && currentB === 255) {
         currentR += progressRate;
     } else if (currentR === 255 && currentG === 0 && currentB > 0) {
-        currentB += progressRate;
+        currentB -= progressRate;
     } else {
         // This shouldn't happen. But we can reset just in case.
         currentR = 255;
