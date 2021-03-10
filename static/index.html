@@ -102,19 +102,23 @@ function drawEllipse(context, entity) {
 var currentR = 255;
 var currentG = 0;
 var currentB = 0;
+
+// Must be a factor of 255 because I'm lazy
+var progressRate = 15;
+
 function nextRainbowColour() {
     if (currentR === 255 && currentG < 255 && currentB === 0) {
-        currentG++;
+        currentG += progressRate;
     } else if (currentR > 0 && currentG === 255 && currentB === 0) {
-        currentR--;
+        currentR += progressRate;
     } else if (currentR === 0 && currentG === 255 && currentB < 255) {
-        currentB++;
+        currentB += progressRate;
     } else if (currentR === 0 && currentG > 0 && currentB === 255) {
-        currentG--;
+        currentG += progressRate;
     } else if (currentR < 255 && currentG === 0 && currentB === 255) {
-        currentR++;
+        currentR += progressRate;
     } else if (currentR === 255 && currentG === 0 && currentB > 0) {
-        currentB--;
+        currentB += progressRate;
     } else {
         // This shouldn't happen. But we can reset just in case.
         currentR = 255;
