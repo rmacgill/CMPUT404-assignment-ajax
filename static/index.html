@@ -228,7 +228,7 @@ var randomID = Math.floor(Math.random() * 100) + 1;
 var counter = 0;
 function addEntityWithoutName(data) {
     //var name = "X"+Math.floor((Math.random()*100)+1);
-    var name = randomID.toString() + ((counter++)%100);
+    var name = randomID.toString() + "X" + ((counter++)%100);
     addEntity(name,data);
 }
 
