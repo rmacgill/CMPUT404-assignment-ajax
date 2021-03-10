@@ -105,6 +105,9 @@ def changes(id):
     Returns a JSON representation of the world if the specified ID
     doesn't have the latest representation
     """
+    if (id not in clients):
+        clients[id] = False
+
     if (clients[id]):
         return jsonify({"current": True})
     else:
