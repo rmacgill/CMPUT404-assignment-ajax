@@ -69,7 +69,7 @@ class World:
     def get_listener(self, listener_name):
         # Better than throwing an error if there's a connection hiccup
         # when the listener was first supposed to be created
-        if (key not in self.listeners):
+        if (listener_name not in self.listeners):
             self.add_listener(listener_name)
 
         return self.listeners[listener_name]
