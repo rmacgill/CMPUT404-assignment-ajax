@@ -383,8 +383,8 @@ function updateWorld(data) {
 // Draw at 30 frames per second
 setInterval(update, 1000/30.0);
 
-// Synchronize with server at a slower rate of ten times per second
-setInterval(serverUpdate, 1000/10.0);
+// Only try to syncronize with the server every 300ms
+setInterval(serverUpdate, 300);
 
     </script>
 </body>
