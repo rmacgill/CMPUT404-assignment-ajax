@@ -31,6 +31,7 @@ var host = window.location.host;
 var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
+
 var randomColours = ["silver", "gray", "white", "maroon", "red", "purple",
                      "fuchsia", "green", "lime", "olive", "yellow", "navy", "blue", "teal"];
 
@@ -219,13 +220,15 @@ function addEntity(entity, data) {
     
     // Update the server representation and don't trust it until that's done (whether succeeded or failed)
     pendingUpdates++;
-    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, null)
+    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, entityAdded)
 }
 
+// This will allow multiple users to draw without erasing seemingly random bits of each other's work
+var randomID = Math.floor(Math.random() * 100) + 1;
 var counter = 0;
 function addEntityWithoutName(data) {
     //var name = "X"+Math.floor((Math.random()*100)+1);
-    var name = "X"+(counter++)%100;
+    var name = randomID.toString() + ((counter++)%100);
     addEntity(name,data);
 }
 
