@@ -60,7 +60,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
 }
 
 
-world = {};
+worlds = {};
 
 //XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
@@ -77,7 +77,7 @@ function drawCircle(context,entity) {
     }
 }
 
-// Draw an ellipse instead so we can do more things
+// Draw an ellipse instead so we can do more fun things
 function drawEllipse(context, entity) {
     with(context) {
         var x = entity["x"];
@@ -204,12 +204,21 @@ function getPosition(e) {
 	}
 }
 
+// Keep track of when we're waiting for the server to acknowledge our entity modifications
+// if it hasn't done so yet, don't bother requesting latest state from the server
+var pendingUpdates = 0;
+function entityAdded(data) {
+    if (pendingUpdates > 0) {
+        pendingUpdates--;
+    } 
+}
 
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame();
     
-    // Update the server representation
+    // Update the server representation and don't trust it until that's done (whether succeeded or failed)
+    pendingUpdates++;
     sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, null)
 }
 
@@ -360,9 +369,28 @@ function update() {
     drawFrame();
 }
 
+// Will allow us to only receive forced updates while we're not
+// in the middle of drawing (also have protections in case of failure)
+var forceUpdateLimit = 100;
+var currentBlockedUpdates = 0;
 function serverUpdate() {
-    // Get the world from the webservice and then trigger an update
-    sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
+    var shouldUpdate = false;
+    if (pendingUpdates > 0) {
+        shouldUpdate = true;
+    } else {
+        currentBlockedUpdates++;
+        if (currentBlockedUpdates >= forceUpdateLimit) {
+            // Assume server or client missed a response and reset
+            currentBlockedUpdates = 0;
+            pendingUpdates = 0;
+            shouldUpdate = true;
+        }
+    }
+
+    if (shouldUpdate) {
+        // Get the world from the webservice and then trigger an update
+        sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
+    }
 }
 
 function updateWorld(data) {
@@ -373,8 +401,8 @@ function updateWorld(data) {
 // Draw at 30 frames per second
 setInterval(update, 1000/30.0);
 
-// Gather server updates once per second as a test
-setInterval(serverUpdate, 1000)
+// Synchronize with server at a slower rate of 10 times per second
+setInterval(serverUpdate, 1000/10.0)
 
     </script>
 </body>
