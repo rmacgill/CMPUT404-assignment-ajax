@@ -39,7 +39,9 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
-                    callback(JSON.parse(xhr.responseText));
+                    if (callback != null) {
+                        callback(JSON.parse(xhr.responseText));
+                    }
                 }
             } 
             catch(e) {
@@ -140,8 +142,10 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    //XXX: Send a XHTML Request that updates the entity you just  modified!
-    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, drawNextFrame)
+    drawNextFrame();
+    
+    // Update the server representation
+    sendJSONXMLHTTPRequest("http://" + host + "/entity/" + entity, data, null)
 }
 
 var counter = 0;
@@ -274,10 +278,11 @@ function updateWorld(data) {
     drawNextFrame();
 }
 
-// 30 frames per second
-setInterval( update, 1000/30.0);
+// Draw at 30 frames per second
+setInterval(update, 1000/30.0);
 
-
+// Gather server updates once per second as a test
+setInterval(updateWorld, 1000)
 
     </script>
 </body>
