@@ -268,9 +268,13 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 
 function update() {
-    //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
-    sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
+    // Render the world if changes have been flagged
     drawFrame();
+}
+
+function serverUpdate() {
+    // Get the world from the webservice and then trigger an update
+    sendJSONXMLHTTPRequest("http://" + host + "/world", "", updateWorld)
 }
 
 function updateWorld(data) {
@@ -282,7 +286,7 @@ function updateWorld(data) {
 setInterval(update, 1000/30.0);
 
 // Gather server updates once per second as a test
-setInterval(updateWorld, 1000)
+setInterval(serverUpdate, 1000)
 
     </script>
 </body>
