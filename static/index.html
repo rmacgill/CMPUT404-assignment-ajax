@@ -88,6 +88,8 @@ function drawEllipse(context, entity) {
         fillStyle = entity["colour"];
         strokeStyle = fillStyle;
         lineWidth = 5;
+
+        beginPath();
         arc(x, y, radiusX, radiusY, 0, 0, 2.0 * Math.PI, false)
         if (entity["fill"]) {
             fill();
