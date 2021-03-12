@@ -36,7 +36,8 @@ app.debug = True
 
 class World:
     def __init__(self):
-        self.clear()
+        self.space = dict()
+        self.listeners = dict()
         
     def update(self, entity, key, value):
         entry = self.space.get(entity,dict())
