@@ -51,8 +51,7 @@ class World:
     def clear(self):
         self.space = dict()
         # Notify all listeners to clear their worlds rather than deleting the listeners outright
-        # Note that this leads to a performance issue since listeners can't be cleared unless the
-        # server is cycled, but I'll say it's acceptible for this tiny test.
+        # The obvious performance issue of accumulated dead listeners is handled in notify_all
         self.notify_all("clear", 1)
 
     def get(self, entity):
@@ -64,8 +63,17 @@ class World:
     # Listener setup adapted from: https://github.com/uofa-cmput404/cmput404-slides/blob/master/examples/ObserverExampleAJAX/server.py
     # Downside to this setup is that any dropped communications result in a slowly desyncronizing world
     def notify_all(self, entity, data):
+        dead_listeners = []
         for listener in self.listeners:
-            self.listeners[listener][entity] = data
+            # If a listener hasn't been consumed for a long time, kill it
+            if len(self.listeners[listener] > 300):
+                dead_listeners.append(listener)
+            else:
+                self.listeners[listener][entity] = data
+
+        for listener in dead_listeners:
+            del self.listeners[listener]
+
 
     def add_listener(self, listener_name):
         self.listeners[listener_name] = dict()
