@@ -49,7 +49,10 @@ class World:
 
     def clear(self):
         self.space = dict()
-        self.listeners = dict()
+        # Notify all listeners to clear their worlds rather than deleting the listeners outright
+        # Note that this leads to a performance issue since listeners can't be cleared unless the
+        # server is cycled, but I'll say it's acceptible for this tiny test.
+        self.notify_all("clear", 1)
 
     def get(self, entity):
         return self.space.get(entity,dict())

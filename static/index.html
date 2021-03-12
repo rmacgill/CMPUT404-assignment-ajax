@@ -364,7 +364,8 @@ function update() {
 
 var registered = false;
 
-// This 
+// This lets clients sync up with the current state of the world if they join something
+// that's in-progress.
 function listenerRegistered(worldState) {
     registered = true;
     world = worldState;
@@ -385,7 +386,12 @@ function serverUpdate() {
 function updateWorld(updates) {
     if (updates) {
         for (var entity in updates) {
-            world[entity] = updates[entity];
+            // If one client has cleared the world, all other clients should clear too
+            if (entity == "clear") {
+                world = {};
+            } else {
+                world[entity] = updates[entity];
+            }
         }
         drawNextFrame();
     }
